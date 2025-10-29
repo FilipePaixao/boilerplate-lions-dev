@@ -1,6 +1,6 @@
 import repo from '../repositories/user.repository.js';
 import createError from '../utils/app-error.js';
-
+import hashPassword from '../utils/hash-password.js';
 function ensureValidPayload({ name, email, password }) {
   if (!name?.trim()) throw createError('Nome é obrigatório.', 400);
   if (!email?.trim()) throw createError('E-mail é obrigatório.', 400);
@@ -11,14 +11,15 @@ function ensureValidPayload({ name, email, password }) {
 export default {
   async createUser(data) {
     ensureValidPayload(data);
-
     const existing = await repo.findByEmail(data.email);
     if (existing) throw createError('E-mail já cadastrado.', 409);
+
+    const hashedPassword = hashPassword(data.password);
 
     return repo.create({
       name: data.name.trim(),
       email: data.email.trim().toLowerCase(),
-      password: data.password,
+      password: hashedPassword,
     });
   },
 
