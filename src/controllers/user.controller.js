@@ -1,31 +1,48 @@
-const service = require('../services/user.service');
+import userService from '../services/user.service.js';
 
-module.exports = {
+export default {
   async create(req, res, next) {
-    try { 
-      res.status(201).json(
-      await service.createUser(req.body)); 
-    
+    try {
+      const user = await userService.createUser(req.body);
+      res.status(201).json(user);
+    } catch (error) {
+      next(error);
     }
-    catch (err) { next(err); }
   },
+
   async list(req, res, next) {
-    try { res.json(await service.listUsers()); }
-    catch (err) { next(err); }
+    try {
+      const users = await userService.listUsers();
+      res.json(users);
+    } catch (error) {
+      next(error);
+    }
   },
+
   async get(req, res, next) {
     try {
-      const user = await service.getUser(req.params.id);
-      if (!user) return res.status(404).json({ message: 'Not found' });
+      const user = await userService.getUser(req.params.id);
       res.json(user);
-    } catch (err) { next(err); }
+    } catch (error) {
+      next(error);
+    }
   },
+
   async update(req, res, next) {
-    try { res.json(await service.updateUser(req.params.id, req.body)); }
-    catch (err) { next(err); }
+    try {
+      const user = await userService.updateUser(req.params.id, req.body);
+      res.json(user);
+    } catch (error) {
+      next(error);
+    }
   },
+
   async remove(req, res, next) {
-    try { await service.removeUser(req.params.id); res.status(204).end(); }
-    catch (err) { next(err); }
-  }
+    try {
+      await userService.removeUser(req.params.id);
+      res.status(204).end();
+    } catch (error) {
+      next(error);
+    }
+  },
 };
