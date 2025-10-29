@@ -1,33 +1,47 @@
-const jwt = require('jsonwebtoken');
- function AuthMiddleware(req, res, next) {
+import jwt from 'jsonwebtoken';
+import createError from '../utils/app-error.js';
+
+export function authMiddleware() {
+  return (req, _res, next) => {
     const authHeader = req.headers.authorization;
-    if (!authHeader) return RetornarErro(res, "Token invalido", 401);
-    
-    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
-    
-    try {
-        const secret = process.env.JWT_SECRET;
-        if (!secret) {
-            return RetornarErro(res, "Erro de configuração", 500);
-        }
-        const decoded = jwt.verify(token, secret);
-        req.user = decoded;
-        next();
-    } catch (error) {
-        return RetornarErro(res, "Token invalido", 401);
+    if (!authHeader) {
+      throw createError('Token não informado.', 401);
     }
+
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret) {
+      throw createError('JWT_SECRET não configurado.', 500);
+    }
+
+    try {
+      req.user = jwt.verify(token, secret);
+      next();
+    } catch (error) {
+      throw createError('Token inválido ou expirado.', 401);
+    }
+  };
 }
 
+export function requireRole(...allowedRoles) {
+  return (req, _res, next) => {
+    if (!req.user) {
+      throw createError('Usuário não autenticado.', 401);
+    }
 
- function requireRole(...allowed) {
-  return async (req, res, next) => {
-    const user = await RegisterUserMGS.findById(req.auth.userId).lean();
-    if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+    if (allowedRoles.length === 0) {
+      next();
+      return;
+    }
 
-    const authorized = user.roles?.some((role) => allowed.includes(role));
-    if (!authorized) return res.status(403).json({ error: 'Acesso negado' });
+    const userRoles = Array.isArray(req.user.roles) ? req.user.roles : [];
+    const hasPermission = allowedRoles.some((role) => userRoles.includes(role));
+
+    if (!hasPermission) {
+      throw createError('Acesso negado.', 403);
+    }
 
     next();
   };
 }
-module.exports = { AuthMiddleware, requireRole };
