@@ -7,9 +7,11 @@ export default {
   findAll() {
     return User.find();
   },
+
   findById(id) {
     return User.findById(id);
   },
+  
   updateById(id, data) {
     return User.findByIdAndUpdate(id, data, { new: true, runValidators: true });
   },
