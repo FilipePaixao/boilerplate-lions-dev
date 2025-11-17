@@ -1,0 +1,2 @@
+///Ex: Crie testes de integração para o método `findById` do repositório de usuários, garantindo que ele retorne o usuário correto com base no ID fornecido
+// lide adequadamente com casos em que o usuário não é encontrado.

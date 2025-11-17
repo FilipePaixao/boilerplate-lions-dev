@@ -1,4 +1,3 @@
-import { randomUUID } from 'crypto';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { MongooseDatabase } from '../../jest/setup-db.js';
 import { app } from './configApp.js';
