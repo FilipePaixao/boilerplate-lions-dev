@@ -1,5 +1,4 @@
 import userRepository from '../../../repositories/user.repository.js';
-import User from '../../../models/user.model.js';
 
 
 describe ('when we try to create a user with an email that already exists', () => {
