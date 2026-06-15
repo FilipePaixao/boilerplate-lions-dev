@@ -45,3 +45,13 @@ export function requireRole(...allowedRoles) {
     next();
   };
 }
+
+
+export function createToken(payload) {
+
+  if (!process.env.JWT_SECRET) {
+    throw createError('JWT_SECRET não configurado.', 500);
+  }
+
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+}
